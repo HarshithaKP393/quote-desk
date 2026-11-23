@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>RFQs</h2>
+<table>
+  <tr><th>Part</th><th>Description</th><th>Qty</th><th>Needed by</th>
+      <th>Status</th><th>Quotes</th><th>Best quote</th></tr>
+  {% for row in rows %}
+  <tr>
+    <td><a href="{{ url_for('rfq_detail', rfq_id=row.rfq.id) }}">{{ row.rfq.part_number }}</a></td>
+    <td>{{ row.rfq.description }}</td>
+    <td>{{ row.rfq.quantity }}</td>
+    <td>{{ row.needed_by }}</td>
+    <td><span class="badge {{ row.status }}">{{ row.status }}</span></td>
+    <td>{{ row.n_quotes }}</td>
+    <td>
+      {% if row.best %}
+        {{ row.best.supplier }} - ₹{{ "%.2f"|format(row.best.unit_price) }}
+      {% elif row.status == "Quoted" %}
+        No quote can meet the date
+      {% else %}-{% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7">No RFQs yet.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>New RFQ</h2>
+<form method="post" action="{{ url_for('create_rfq') }}">
+  <label>Part number <input name="part_number" required></label>
+  <label>Description <input name="description" required></label>
+  <label>Quantity <input name="quantity" type="number" min="1" required></label>
+  <label>Needed by <input name="needed_by" type="date" required></label>
+  <button>Create RFQ</button>
+</form>
+{% endblock %}
